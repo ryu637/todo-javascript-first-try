@@ -13,70 +13,72 @@
   <ul id="taskList"></ul>
 
   <script>
-    const taskInput = document.getElementById('taskInput');console.log(taskInput);
-    const taskList = document.getElementById('taskList');console.log(taskList);
-    
+    const taskInput = document.getElementById('taskInput');
+    const taskList = document.getElementById('taskList');
+
+    // 初回読み込みでデータ取得
+    window.onload = async () => {
+      const res = await fetch('load.php');
+      const tasks = await res.json();
+      tasks.forEach(task => createTaskElement(task));
+    };
+
     function addTask() {
-        const text = taskInput.value.trim(); console.log(text);
-        taskInput.value = '';
-      if (text === '') {
-        return console.log('no value');
-      }
+      const text = taskInput.value.trim();
+      if (text === '') return;
+      taskInput.value = '';
 
+      // サーバーへ送信
+      fetch('save.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: text })
+      }).then(res => res.json())
+        .then(savedTask => {
+          createTaskElement(savedTask);
+        });
+    }
+
+    function createTaskElement(task) {
       const li = document.createElement('li');
-
-      // テキスト部分
       const span = document.createElement('span');
-      span.textContent = text;
-      span.className = 'text';console.log(span,'span tag についかする');
+      span.textContent = task.text;
 
-      // 削除ボタン
       const delBtn = document.createElement('button');
       delBtn.textContent = '削除';
       delBtn.onclick = () => li.remove();
 
-      // 編集ボタン
       const editBtn = document.createElement('button');
-      editBtn.textContent = '編集'; console.log(li,span,editBtn,delBtn);
+      editBtn.textContent = '編集';
       editBtn.onclick = () => editTask(li, span, editBtn, delBtn);
 
       li.appendChild(span);
       li.appendChild(editBtn);
       li.appendChild(delBtn);
       taskList.appendChild(li);
-
     }
 
     function editTask(li, span, editBtn, delBtn) {
-      // inputフォーム作成
       const input = document.createElement('input');
       input.type = 'text';
       input.value = span.textContent;
-      input.className = 'text';
-      // spanをinputに置き換え
-      li.replaceChild(input, span);
-      console.log(li);
 
-      // 保存ボタン追加
+      li.replaceChild(input, span);
       const saveBtn = document.createElement('button');
       saveBtn.textContent = '保存';
-      saveBtn.className = 'btn';
       li.appendChild(saveBtn);
-
-      // 編集・削除ボタンを非表示に
       editBtn.style.display = 'none';
       delBtn.style.display = 'none';
 
-      // 保存ボタンクリック時の処理
-      saveBtn.addEventListener('click', () => {
+      saveBtn.onclick = () => {
         if (input.value.trim()) {
           span.textContent = input.value.trim();
-          li.replaceChild(span, input); // input → span に戻す
-          li.removeChild(saveBtn);      // 保存ボタン削除
-          editBtn.style.display = 'inline-block'; // ボタン復元
+          li.replaceChild(span, input);
+          li.removeChild(saveBtn);
+          editBtn.style.display = 'inline-block';
           delBtn.style.display = 'inline-block';
         }
-      });
+      };
     }
   </script>
 </body>
