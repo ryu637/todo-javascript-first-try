@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ToDo List</title>
+</head>
+<body>
+  <h1>ToDo List</h1>
+
+  <input id="taskInput" placeholder="やることリスト">
+  <button onclick="addTask()">追加</button>
+
+  <ul id="taskList"></ul>
+
+  <script>
+    const taskInput = document.getElementById('taskInput');console.log(taskInput);
+    const taskList = document.getElementById('taskList');console.log(taskList);
+    
+    function addTask() {
+        const text = taskInput.value.trim(); console.log(text);
+        taskInput.value = '';
+      if (text === '') {
+        return console.log('no value');
+      }
+
+      const li = document.createElement('li');
+
+      // テキスト部分
+      const span = document.createElement('span');
+      span.textContent = text;
+      span.className = 'text';console.log(span,'span tag についかする');
+
+      // 削除ボタン
+      const delBtn = document.createElement('button');
+      delBtn.textContent = '削除';
+      delBtn.onclick = () => li.remove();
+
+      // 編集ボタン
+      const editBtn = document.createElement('button');
+      editBtn.textContent = '編集'; console.log(li,span,editBtn,delBtn);
+      editBtn.onclick = () => editTask(li, span, editBtn, delBtn);
+
+      li.appendChild(span);
+      li.appendChild(editBtn);
+      li.appendChild(delBtn);
+      taskList.appendChild(li);
+
+    }
+
+    function editTask(li, span, editBtn, delBtn) {
+      // inputフォーム作成
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.value = span.textContent;
+      input.className = 'text';
+      // spanをinputに置き換え
+      li.replaceChild(input, span);
+      console.log(li);
+
+      // 保存ボタン追加
+      const saveBtn = document.createElement('button');
+      saveBtn.textContent = '保存';
+      saveBtn.className = 'btn';
+      li.appendChild(saveBtn);
+
+      // 編集・削除ボタンを非表示に
+      editBtn.style.display = 'none';
+      delBtn.style.display = 'none';
+
+      // 保存ボタンクリック時の処理
+      saveBtn.addEventListener('click', () => {
+        if (input.value.trim()) {
+          span.textContent = input.value.trim();
+          li.replaceChild(span, input); // input → span に戻す
+          li.removeChild(saveBtn);      // 保存ボタン削除
+          editBtn.style.display = 'inline-block'; // ボタン復元
+          delBtn.style.display = 'inline-block';
+        }
+      });
+    }
+  </script>
+</body>
+</html>
